@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import type { User } from "../types";
 import { mockAuth } from "../services/mock";
 import { Header, Footer } from "../components/Layout";
@@ -7,6 +7,7 @@ import { Home, Explore, ListingDetails, ProviderProfile, Account, Onboarding, Li
 
 export default function App() {
   const [user, setUser] = useState<User | null | undefined>(null);
+  const location = useLocation();
 
   useEffect(() => {
     mockAuth.current().then(setUser).catch(err => {
@@ -17,7 +18,7 @@ export default function App() {
 
   if (user === undefined) return <div className="page-loading">Loading Kingdom Market…</div>;
 
-  const auth = (el: ReactNode) => <>{user ? el : <Navigate to="/sign-in" replace />}</>;
+  const auth = (el: ReactNode) => <>{user ? el : <Navigate to="/sign-in" state={{ from: location.pathname }} replace />}</>;
 
   return <>
     <Header user={user} onSignOut={async () => { await mockAuth.signOut(); setUser(null); }} />

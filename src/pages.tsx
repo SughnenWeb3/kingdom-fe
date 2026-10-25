@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BadgeCheck, Building2, ChevronRight, CircleHelp, Clock3, ImagePlus, LocateFixed, LockKeyhole, Mail, MapPin, PackagePlus, Phone, Search, ShieldCheck, Store, UsersRound, X } from "lucide-react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import type { Category, Listing, ListingDraft, ListingStatus, ListingType, Provider, User } from "./types";
 import { mockAuth, mockCategories, mockListings, mockProviders, mockUploads } from "./services/mock";
@@ -300,11 +300,20 @@ export function ProviderProfile({ user }: { user: User | null }) {
 
 export function Auth({ mode, onAuth }: { mode: 'sign-in' | 'register'; onAuth: (u: User) => void }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ name: string; email: string; password: string }>();
   const submit = async (data: { name: string; email: string; password: string }) => {
     const user = mode === 'sign-in' ? await mockAuth.signIn(data.email, data.password) : await mockAuth.register(data.name, data.email, data.password);
     onAuth(user);
-    navigate('/dashboard');
+    const next = searchParams.get('next') || (location.state as any)?.from;
+    if (next) {
+      navigate(next);
+    } else if (user.isProvider) {
+      navigate('/dashboard');
+    } else {
+      navigate('/explore');
+    }
   };
   return <section className="auth-page">
     <form className="auth-card" onSubmit={handleSubmit(submit)}>
