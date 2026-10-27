@@ -7,28 +7,39 @@ import { mockAuth, mockCategories, mockListings, mockProviders, mockUploads } fr
 
 const naira = (value?: number, type?: string) => type === 'CONTACT_FOR_PRICE' ? 'Contact for price' : value ? `₦${value.toLocaleString('en-NG')}` : 'Price on request';
 
-function useTypewriter(text: string, speed = 38) {
+function useTypewriter(text: string, speed = 38, pauseAfter = 1500) {
   const [displayed, setDisplayed] = useState('');
-  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    setDisplayed('');
-    setDone(false);
     let i = 0;
-    const tick = () => {
+    let timer: ReturnType<typeof setTimeout>;
+
+    const type = () => {
       i++;
       setDisplayed(text.slice(0, i));
       if (i < text.length) {
-        setTimeout(tick, speed);
+        timer = setTimeout(type, speed);
       } else {
-        setDone(true);
+        // finished — pause, then erase and restart
+        timer = setTimeout(erase, pauseAfter);
       }
     };
-    const start = setTimeout(tick, 300); // small initial delay
-    return () => clearTimeout(start);
-  }, [text, speed]);
 
-  return { displayed, done };
+    const erase = () => {
+      i--;
+      setDisplayed(text.slice(0, i));
+      if (i > 0) {
+        timer = setTimeout(erase, speed / 2); // erase faster than typing
+      } else {
+        timer = setTimeout(type, 400); // brief pause before retyping
+      }
+    };
+
+    timer = setTimeout(type, 300);
+    return () => clearTimeout(timer);
+  }, [text, speed, pauseAfter]);
+
+  return displayed;
 }
 
 function ListingCard({ listing }: { listing: Listing }) {
@@ -50,7 +61,7 @@ function Feature({ icon: Icon, children }: { icon: typeof UsersRound; children: 
 }
 
 export function Home() {
-  const { displayed, done } = useTypewriter("Discover Skills, Services & Products Within Our Community.");
+  const displayed = useTypewriter("Discover Skills, Services & Products Within Our Community.");
 
   return <>
     <section className="hero">
@@ -59,7 +70,7 @@ export function Home() {
           <p className="eyebrow">BUILT FOR OUR CHURCH COMMUNITY</p>
           <h1 className="typewriter">
             {displayed}
-            {!done && <span className="cursor" aria-hidden="true">|</span>}
+            <span className="cursor" aria-hidden="true">|</span>
           </h1>
           <p className="lead">Find skilled professionals, reliable service providers, artisans and product sellers within our church community. Whether you need a service or have something valuable to offer, Kingdom Market brings us closer together.</p>
           <div className="button-row">
