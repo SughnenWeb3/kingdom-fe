@@ -7,6 +7,30 @@ import { mockAuth, mockCategories, mockListings, mockProviders, mockUploads } fr
 
 const naira = (value?: number, type?: string) => type === 'CONTACT_FOR_PRICE' ? 'Contact for price' : value ? `₦${value.toLocaleString('en-NG')}` : 'Price on request';
 
+function useTypewriter(text: string, speed = 38) {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    setDisplayed('');
+    setDone(false);
+    let i = 0;
+    const tick = () => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i < text.length) {
+        setTimeout(tick, speed);
+      } else {
+        setDone(true);
+      }
+    };
+    const start = setTimeout(tick, 300); // small initial delay
+    return () => clearTimeout(start);
+  }, [text, speed]);
+
+  return { displayed, done };
+}
+
 function ListingCard({ listing }: { listing: Listing }) {
   if (!listing.category) return null;
   return <Link to={`/listings/${listing.id}`} className="listing-card">
@@ -26,12 +50,17 @@ function Feature({ icon: Icon, children }: { icon: typeof UsersRound; children: 
 }
 
 export function Home() {
+  const { displayed, done } = useTypewriter("Discover Skills, Services & Products Within Our Community.");
+
   return <>
     <section className="hero">
       <div className="container hero-grid">
         <div>
           <p className="eyebrow">BUILT FOR OUR CHURCH COMMUNITY</p>
-          <h1>Discover Skills, Services &amp; Products Within Our Community.</h1>
+          <h1 className="typewriter">
+            {displayed}
+            {!done && <span className="cursor" aria-hidden="true">|</span>}
+          </h1>
           <p className="lead">Find skilled professionals, reliable service providers, artisans and product sellers within our church community. Whether you need a service or have something valuable to offer, Kingdom Market brings us closer together.</p>
           <div className="button-row">
             <Link className="btn primary" to="/explore">Explore Marketplace <ArrowRight /></Link>
