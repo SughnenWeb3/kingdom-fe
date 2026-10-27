@@ -1450,25 +1450,6 @@ header {
 }
 
 /* Responsive */
-/* Typewriter cursor */
-.typewriter {
-  min-height: 1.17em; /* prevent layout shift while text builds up */
-}
-
-.cursor {
-  display: inline-block;
-  width: 3px;
-  margin-left: 2px;
-  color: var(--green);
-  animation: blink 0.7s step-start infinite;
-  font-weight: 300;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
 /* ─────────────────────────────────────────────
    RESPONSIVE  –  mobile-first, 4 breakpoints
    xs  < 480px   (small phones)
