@@ -1,12 +1,14 @@
-import { Menu, Search, Store, X } from "lucide-react";
+import { Menu, Moon, Search, Store, Sun, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import type { User } from "../types";
+import { useTheme } from "../context/ThemeContext";
 
 export const Brand = () => <Link className="brand" to="/"><span className="brand-mark">✦</span><span>Kingdom Market<small>OUR COMMUNITY</small></span></Link>;
 
 export function Header({ user, onSignOut }: { user: User | null; onSignOut: () => void }) {
   const [open, setOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const links = [['/', 'Home'], ['/explore', 'Explore Marketplace'], ['/become-a-provider', 'List Your Business'], ['/dashboard', 'My Account']];
 
   return <header>
@@ -21,7 +23,15 @@ export function Header({ user, onSignOut }: { user: User | null; onSignOut: () =
           <span className="hello">Hi, {user.name}</span>
           <button className="text-btn" onClick={onSignOut}>Sign out</button>
         </> : <Link className="btn outline" to="/sign-in">Sign In</Link>}
-        <Link className="btn primary" to={user?.isProvider ? '/dashboard' : '/register'}>{user?.isProvider ? 'Dashboard' : 'Get Started'}</Link>
+        <button
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+        {!user && <Link className="btn primary" to="/register">Get Started</Link>}
+        {user?.isProvider && <Link className="btn primary" to="/dashboard">Dashboard</Link>}
       </div>
     </div>
   </header>;
